@@ -8,6 +8,9 @@ local paraxiLogo = love.graphics.newImage("Sprites/paraxiLogo.png")
 local golfBallImage = love.graphics.newImage("Sprites/golfBall.png")
 -- local optionsIcon = love.graphics.newImage("Sprites/gearIcon.png")
 
+local paraxiLogoRotationX = paraxiLogo:getWidth() / 2
+local paraxiLogoRotationY = paraxiLogo:getHeight() / 2
+
 local golfBallRotationX = golfBallImage:getWidth() / 2
 local golfBallRotationY = golfBallImage:getHeight() / 2
 
@@ -16,7 +19,7 @@ local golfBalls = {}
 local golfSpawnTimer = 0
 
 function mainMenu.load()
-    love.window.setTitle("Horizon Driving - Main Menu")
+    love.window.setTitle("Paraxi Golf - Main Menu")
     screenWidthA = love.graphics.getWidth()
     screenHeightA = love.graphics.getHeight()
     screenWidth = 1920
@@ -79,6 +82,7 @@ function mainMenu.draw()
     -- golfBallRotationX, golfBallRotationY)
 
     -- Draw non SUIT GUI
+    love.graphics.draw(paraxiLogo, 200, screenHeight - 150, 0, 0.75, 0.75, paraxiLogoRotationX, paraxiLogoRotationY)
 end
 
 function mainMenu.drawSUIT() -- Draws SUIT Elements
@@ -102,7 +106,7 @@ function golfBallsUpdate(dt)
             scaleX = 3,
             scaleY = 3,
         }
-        print("Spawned Golf Ball")
+        -- print("Spawned Golf Ball")
         table.insert(golfBalls, golfBall)
         golfSpawnTimer = math.random(0.04, 0.05)
     end
