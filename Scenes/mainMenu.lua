@@ -74,8 +74,16 @@ function mainMenu.draw()
 
     -- Draw golf balls
     for i, golfBall in ipairs(golfBalls) do
+        local sinVal = math.sin(golfBall.rotation)
+
+        local normalize = (sinVal + 1) / 2
+
+        local r, g, b = interpolateColor(normalize, {0.2, 0.3, 0.4}, {1, 1, 1})
+
+        love.graphics.setColor(r, g, b)
         love.graphics.draw(golfBallImage, golfBall.x, golfBall.y, golfBall.rotation, golfBall.scaleX, golfBall.scaleY,
         golfBallRotationX, golfBallRotationY)
+        love.graphics.setColor(1, 1, 1)
     end
     -- love.graphics.draw(golfBallImage, math.floor(100), math.floor(200),
     -- 0, 3, 3,
@@ -89,6 +97,14 @@ function mainMenu.drawSUIT() -- Draws SUIT Elements
     suit.draw()
 end
 
+function interpolateColor(normalized, color1, color2) -- This is AI code, I have never made interpolation before
+    local r = (1 - normalized) * color1[1] + normalized * color2[1]
+    local g = (1 - normalized) * color1[2] + normalized * color2[2]
+    local b = (1 - normalized) * color1[3] + normalized * color2[3]
+
+    return r, g, b
+end
+
 function menuGUIUpdate(dt)
     
 end
@@ -98,17 +114,19 @@ function golfBallsUpdate(dt)
     if golfSpawnTimer < 0 then golfSpawnTimer = 0 end
 
     if golfSpawnTimer == 0 then
-        local golfBall = {
-            x = screenWidth/2 + math.random(-150, 150),
-            y = 1100,
-            rotation = 0,
-            rotationSpeed = math.random(-100, 100) / 200,
-            scaleX = 3,
-            scaleY = 3,
-        }
-        -- print("Spawned Golf Ball")
-        table.insert(golfBalls, golfBall)
-        golfSpawnTimer = math.random(0.04, 0.05)
+        for i = 2,1,-1 do
+            local golfBall = {
+                x = screenWidth/2 + math.random(-150, 150),
+                y = 1100,
+                rotation = 0,
+                rotationSpeed = math.random(-100, 100) / 200,
+                scaleX = 3,
+                scaleY = 3,
+            }
+            -- print("Spawned Golf Ball")
+            table.insert(golfBalls, golfBall)
+            golfSpawnTimer = 0 --math.random(0.04, 0.05)
+        end
     end
     -- Move em
     for i, golfBall in ipairs(golfBalls) do
