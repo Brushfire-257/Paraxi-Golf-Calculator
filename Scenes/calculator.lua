@@ -16,6 +16,20 @@ local centerY = love.graphics.getHeight() / 2
 local isDragging = false
 local dragStartX, dragStartY = 0, 0
 
+local vectorTable = {}
+
+local textInput = {text = ""}
+local savedText = {}
+local requestedData = 0
+local saveTable = {}
+
+local prevVectorx, prevVectory = 0
+
+local golfBallImage = love.graphics.newImage("Sprites/golfBall.png")
+local golfBallRotationX = golfBallImage:getWidth() / 2
+local golfBallRotationY = golfBallImage:getHeight() / 2
+local golfBallAnimationTimer = 0
+
 function calculator.load()
     love.window.setTitle("Paraxi Golf - Calculator")
     screenWidthA = love.graphics.getWidth()
@@ -47,6 +61,7 @@ function calculator.load()
     font2 = love.graphics.newFont("Fonts/VCR_OSD_MONO.ttf", 50 * math.min(scaleStuff("w"), scaleStuff("h")))
     font3 = love.graphics.newFont("Fonts/VCR_OSD_MONO.ttf", 25 * math.min(scaleStuff("w"), scaleStuff("h")))
     love.graphics.setFont(font)
+    love.keyboard.setKeyRepeat(true)
 
     -- print(love.filesystem.read("saveFile.txt"))
 end
@@ -85,6 +100,10 @@ function calculator.update(dt)
             dragStartY = 0
         end
     end
+
+    suit.Input(textInput, screenWidth - 350, 50, 300, 50)
+
+    golfBallAnimationTimer = golfBallAnimationTimer + dt
 end
 
 function love.mousepressed(x, y, button)
@@ -121,6 +140,17 @@ function calculator.draw()
     -- Label the axes
     love.graphics.setColor(labelColor)
     labelGridLines(centerX, centerY, gridSpacing, screenWidth, screenHeight)
+
+    -- Draw vectors
+    addVectors(vectorTable)
+
+    love.graphics.setFont(font2)
+    if requestedData == 0 then
+        love.graphics.print("Magnetude?", screenWidth - 350, 100)
+    elseif requestedData == 1 then
+        love.graphics.print("Angle?", screenWidth - 350, 100)
+    end
+    love.graphics.setFont(font3)
 end
 
 function drawGridLines(centerX, centerY, spacing, screenWidth, screenHeight)
@@ -154,6 +184,71 @@ function labelGridLines(centerX, centerY, spacing, screenWidth, screenHeight) --
     end
 end
 
+function drawLine(startX, startY, endX, endY, thickness, color)
+    -- grid coordinates to screen coordinates
+    local screenStartX = centerX + startX * gridSpacing
+    local screenStartY = centerY - startY * gridSpacing
+    local screenEndX = centerX + endX * gridSpacing
+    local screenEndY = centerY - endY * gridSpacing
+
+    love.graphics.setLineWidth(thickness)
+    love.graphics.setColor(color[1], color[2], color[3])
+    love.graphics.line(screenStartX, screenStartY, screenEndX, screenEndY)
+    love.graphics.circle("fill", screenEndX, screenEndY, 10 * golfBallScale / 3)
+
+    love.graphics.setLineWidth(1)
+    love.graphics.setColor(1, 1, 1)
+end
+
+function deconstructVector(magnitude, direction) -- Oh yeahh
+    local vectorx = magnitude * math.cos(math.rad(direction))
+    local vectory = magnitude * math.sin(math.rad(direction))
+    return vectorx, vectory
+end
+
+function addVectors(vectorTable) -- Add vectors in table
+    local vectorx, vectory = 0
+    for i, vector in ipairs(vectorTable) do
+
+        if i == 1 then
+            vectorx, vectory = deconstructVector(vectorTable[i][1], vectorTable[i][2])
+        else
+            vectorx, vectory = deconstructVector(vectorTable[i][1], vectorTable[i][2])
+            vectorx = prevVectorx + vectorx
+            vectory = prevVectory + vectory
+        end
+        
+        -- color stuff
+        local color1 = {50 / 255, 150 / 255, 200 / 255}
+        local color2 = {200 / 255, 200 / 255, 255 / 255}
+        local normalized = (i - 1) / (#vectorTable - 1)
+        local r = (1 - normalized) * color1[1] + normalized * color2[1]
+        local g = (1 - normalized) * color1[2] + normalized * color2[2]
+        local b = (1 - normalized) * color1[3] + normalized * color2[3]
+
+        if i == 1 then
+            drawLine(0, 0, vectorx, vectory, 5, {r, g, b})
+        else
+            drawLine(prevVectorx, prevVectory, vectorx, vectory, 5, {r, g, b})
+        end
+        prevVectorx, prevVectory = vectorx, vectory
+    end
+
+    golfBallScale = math.sin(golfBallAnimationTimer) / 2 + 4
+    if vectorTable[1] ~= nil then
+        -- grid coordinates to screen coordinates
+        local screenEndX = centerX + vectorx * gridSpacing
+        local screenEndY = centerY - vectory * gridSpacing
+        love.graphics.draw(golfBallImage, screenEndX, screenEndY, 0, golfBallScale, golfBallScale,
+        golfBallRotationX, golfBallRotationY)
+    else
+        local screenEndX = centerX
+        local screenEndY = centerY
+        love.graphics.draw(golfBallImage, screenEndX, screenEndY, 0, golfBallScale, golfBallScale,
+        golfBallRotationX, golfBallRotationY)
+    end
+end
+
 function love.wheelmoved(x, y)
     if y > 0 then
         -- Zoom in
@@ -165,19 +260,50 @@ function love.wheelmoved(x, y)
 
     -- Clamp gridSpacing to a reasonable range
     if gridSpacing < 50 then
-        gridSpacing = 50
+        gridSpacing = 20
     elseif gridSpacing > 200 then
         gridSpacing = 200
     end
 end
 
 function calculator.drawSUIT()
-
+    suit.draw()
 end
 
+function love.textinput(t)
+    suit.textinput(t)
+end
+
+
 function love.keypressed(key)
-    if key == "1" then -- Exit the game (Debug)
+    suit.keypressed(key)
+    if key == "`" then -- Exit the game (Debug)
       love.event.quit()
+    elseif key == "return" then
+        local savedValue = tonumber(textInput.text)
+
+        if requestedData == 0 then
+            if savedValue ~= nil then
+                saveTable[1] = savedValue
+                textInput.text = ""
+                print(saveTable[1] .. ", ")
+                requestedData = 1
+            end
+        elseif requestedData == 1 then
+            if savedValue ~= nil then
+                saveTable[2] = savedValue
+                textInput.text = ""
+                print(saveTable[1] .. ", " .. saveTable[2])
+                table.insert(vectorTable, saveTable)
+                saveTable = {}
+                requestedData = 0
+            end
+        end 
+    elseif key == "c" then
+        centerX = love.graphics.getWidth() / 2
+        centerY = love.graphics.getHeight() / 2
+    elseif key == "r" then
+        vectorTable = {}
     end
 end
 
