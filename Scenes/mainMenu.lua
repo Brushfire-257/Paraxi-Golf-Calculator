@@ -124,6 +124,11 @@ function golfBallsUpdate(dt)
     end
 
     golfBalls = newGolfBalls
+
+    -- Sort for rendering
+    table.sort(golfBalls, function(a, b)
+        return math.sin(a.rotation) < math.sin(b.rotation)
+    end)
 end
 
 function love.keypressed(key)
