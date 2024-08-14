@@ -8,9 +8,6 @@ gameVersion = 0.1
 -- Hold the current state of the game
 local state = {}
 
--- Load scaling libraries
-local CScreen = require "cscreen"
-
 -- misc. setup (Planning on adding intro later)
 firstStart = true -- After intro set this to false
 
@@ -24,9 +21,6 @@ function love.load()
     -- love.window.setMode(1280, 720) -- Set to 1920 x 1080 on launch
     love.window.setTitle("Horizon Driving")
     love.math.setRandomSeed(os.time())
-
-    -- Load scaling
-    CScreen.init(1920, 1080, true)
 
     -- Load the menu state
     state.current = require("Scenes/mainMenu")
@@ -51,15 +45,7 @@ function love.update(dt) -- Runs every frame.
 end
 
 function love.draw() -- Draws every frame / Runs directly after love.update()
-    -- Set the scaling
-    CScreen.apply()
     -- Draw the current state
     state.current.draw()
-	CScreen.cease()
     state.current.drawSUIT()
-end
-
--- Scaling Function
-function love.resize(width, height)
-	CScreen.update(width, height)
 end

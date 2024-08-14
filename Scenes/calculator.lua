@@ -101,7 +101,7 @@ function calculator.update(dt)
         end
     end
 
-    suit.Input(textInput, screenWidth - 350, 50, 300, 50)
+    suit.Input(textInput, screenWidthA - 350, 50, 300, 50)
 
     golfBallAnimationTimer = golfBallAnimationTimer + dt
 end
@@ -146,11 +146,31 @@ function calculator.draw()
 
     love.graphics.setFont(font2)
     if requestedData == 0 then
-        love.graphics.print("Magnetude?", screenWidth - 350, 100)
+        love.graphics.print("Magnitude?", screenWidth - 350, 100)
     elseif requestedData == 1 then
         love.graphics.print("Angle?", screenWidth - 350, 100)
     end
+    for i, vector in ipairs(vectorTable) do
+        love.graphics.print("<" .. vectorTable[i][1]
+        .. "," .. vectorTable[i][2] .. ">", screenWidth - 350, (25 * i) + 100)
+        -- if i == #vectorTable then
+        --     love.graphics.print("Ans: <" .. screenEndX
+        --     .. "," .. screenEndY .. ">", screenWidth - 350, (25 * (i + 1)) + 100)
+        -- end
+        if i ~= nil and i == #vectorTable then
+            printFinal(i)
+        end
+    end
+
     love.graphics.setFont(font3)
+end
+
+function printFinal(i)
+    local finalVectorMagnitude = math.sqrt((finalVectorx^2) + (finalVectory^2)) -- Magnitude
+    local finalVectorAngle = math.deg(math.atan(finalVectory / finalVectorx)) -- Angle
+    print(finalVectorMagnitude .. "," .. finalVectorAngle)
+    
+    love.graphics.print("Ans: <" .. finalVectorMagnitude .. "," .. finalVectorAngle .. ">", screenWidthA - 350, (25 * (i + 1)) + 100)
 end
 
 function drawGridLines(centerX, centerY, spacing, screenWidth, screenHeight)
@@ -227,7 +247,7 @@ function addVectors(vectorTable) -- Add vectors in table
         local b = (1 - normalized) * color1[3] + normalized * color2[3]
 
         if i == 1 then
-            drawLine(0, 0, vectorx, vectory, 5, {r, g, b})
+            drawLine(0, 0, vectorx, vectory, 5, {50 / 255, 150 / 255, 200 / 255})
         else
             drawLine(prevVectorx, prevVectory, vectorx, vectory, 5, {r, g, b})
         end
@@ -239,6 +259,9 @@ function addVectors(vectorTable) -- Add vectors in table
         -- grid coordinates to screen coordinates
         local screenEndX = centerX + vectorx * gridSpacing
         local screenEndY = centerY - vectory * gridSpacing
+        finalVectorx = vectorx
+        finalVectory = vectory
+        -- print(vectorx .. "," .. vectory)
         love.graphics.draw(golfBallImage, screenEndX, screenEndY, 0, golfBallScale, golfBallScale,
         golfBallRotationX, golfBallRotationY)
     else
@@ -259,8 +282,8 @@ function love.wheelmoved(x, y)
     end
 
     -- Clamp gridSpacing to a reasonable range
-    if gridSpacing < 50 then
-        gridSpacing = 20
+    if gridSpacing < 10 then
+        gridSpacing = 10
     elseif gridSpacing > 200 then
         gridSpacing = 200
     end
@@ -274,10 +297,9 @@ function love.textinput(t)
     suit.textinput(t)
 end
 
-
 function love.keypressed(key)
     suit.keypressed(key)
-    if key == "`" then -- Exit the game (Debug)
+    if key == "]" then -- Exit the game (Debug)
       love.event.quit()
     elseif key == "return" then
         local savedValue = tonumber(textInput.text)

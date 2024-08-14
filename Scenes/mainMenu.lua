@@ -3,6 +3,9 @@ mainMenu = {}
 
 local suit = require("SUIT")
 
+-- Load scaling libraries
+local CScreen = require "cscreen"
+
 love.graphics.setDefaultFilter("nearest", "nearest")
 local paraxiLogo = love.graphics.newImage("Sprites/paraxiLogo.png")
 local golfBallImage = love.graphics.newImage("Sprites/golfBall.png")
@@ -26,6 +29,9 @@ function mainMenu.load()
     screenHeight = 1080
 
     love.math.setRandomSeed(os.time())
+
+    -- Load scaling
+    CScreen.init(1920, 1080, true)
 
     -- Load sound(s)
     bgSong = love.audio.newSource("Sounds/bgmusic.mp3", "stream")
@@ -69,6 +75,9 @@ function mainMenu.update(dt)
 end
 
 function mainMenu.draw()
+    -- Set the scaling
+    CScreen.apply()
+
     -- Draw Background
     love.graphics.clear(2 / 255, 51 / 255, 79 / 255)
 
@@ -91,6 +100,7 @@ function mainMenu.draw()
 
     -- Draw non SUIT GUI
     love.graphics.draw(paraxiLogo, 200, screenHeight - 150, 0, 0.75, 0.75, paraxiLogoRotationX, paraxiLogoRotationY)
+    CScreen.cease()
 end
 
 function mainMenu.drawSUIT() -- Draws SUIT Elements
@@ -154,7 +164,7 @@ function golfBallsUpdate(dt)
 end
 
 function love.keypressed(key)
-    if key == "1" then -- Exit the game (Debug)
+    if key == "]" then -- Exit the game (Debug)
       love.event.quit()
     end
 end
@@ -170,6 +180,11 @@ function scaleStuff(widthorheight)
     end
 
     return scale
+end
+
+-- Scaling Function
+function love.resize(width, height)
+	CScreen.update(width, height)
 end
 
 return mainMenu
