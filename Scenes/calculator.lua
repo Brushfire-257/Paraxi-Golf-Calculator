@@ -99,6 +99,12 @@ function calculator.update(dt)
             love.mouse.setPosition(mouseX, 0)
             dragStartY = 0
         end
+
+    end
+    
+    if love.keyboard.isDown('escape') then -- Back to main menu
+        print("Returning to main menu")
+        return "mainMenu"
     end
 
     suit.Input(textInput, screenWidthA - 350, 50, 300, 50)

@@ -164,7 +164,7 @@ function golfBallsUpdate(dt)
 end
 
 function love.keypressed(key)
-    if key == "]" then -- Exit the game (Debug)
+    if key == "]" or key == "escape" then -- Exit the game (Debug)
       love.event.quit()
     end
 end
