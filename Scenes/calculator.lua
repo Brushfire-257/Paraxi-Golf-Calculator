@@ -168,9 +168,14 @@ end
 function printFinal(i)
     local finalVectorMagnitude = math.sqrt((finalVectorx^2) + (finalVectory^2)) -- Magnitude
     local finalVectorAngle = math.deg(math.atan(finalVectory / finalVectorx)) -- Angle
-    print(finalVectorMagnitude .. "," .. finalVectorAngle)
+    -- print(finalVectorMagnitude .. "," .. finalVectorAngle)
     
-    love.graphics.print("Ans: <" .. finalVectorMagnitude .. "," .. finalVectorAngle .. ">", screenWidthA - 350, (25 * (i + 1)) + 100)
+    love.graphics.print("Ans: <" .. roundNumber(finalVectorMagnitude, 3) .. "," .. roundNumber(finalVectorAngle, 3) .. ">", 0, screenHeightA - 50)
+end
+
+function roundNumber(number, decimalPlaces) -- Currently just cuts it off at that specified decimal
+    -- Note: there is no integrated function in lua to round numbers
+    return math.floor(number * (math.pow(10, decimalPlaces))) / (math.pow(10, decimalPlaces))
 end
 
 function drawGridLines(centerX, centerY, spacing, screenWidth, screenHeight)
@@ -193,14 +198,14 @@ function labelGridLines(centerX, centerY, spacing, screenWidth, screenHeight) --
     for x = worldOriginX, screenWidth, spacing do
         local gridX = math.floor((x - centerX) / spacing)
         local label = tostring(gridX)
-        love.graphics.print(label, x + 2, centerY + 2)
+        -- love.graphics.print(label, x + 2, centerY + 2)
     end
 
     -- Label y-axis
     for y = worldOriginY, screenHeight, spacing do
         local gridY = math.floor((centerY - y) / spacing)
         local label = tostring(gridY)
-        love.graphics.print(label, centerX + 2, y + 2)
+        -- love.graphics.print(label, centerX + 2, y + 2)
     end
 end
 
