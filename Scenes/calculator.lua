@@ -204,14 +204,14 @@ function labelGridLines(centerX, centerY, spacing, screenWidth, screenHeight) --
     for x = worldOriginX, screenWidth, spacing do
         local gridX = math.floor((x - centerX) / spacing)
         local label = tostring(gridX)
-        -- love.graphics.print(label, x + 2, centerY + 2)
+        love.graphics.print(label, x + 2, centerY + 2)
     end
 
     -- Label y-axis
     for y = worldOriginY, screenHeight, spacing do
         local gridY = math.floor((centerY - y) / spacing)
         local label = tostring(gridY)
-        -- love.graphics.print(label, centerX + 2, y + 2)
+        love.graphics.print(label, centerX + 2, y + 2)
     end
 end
 
